@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption/Decryption Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .section {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .encrypt-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .decrypt-section {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        textarea, input {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.95);
+            color: #2c3e50;
+            resize: vertical;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+        }
+
+        textarea {
+            min-height: 120px;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result-area {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            min-height: 80px;
+            backdrop-filter: blur(5px);
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .status.show {
+            opacity: 1;
+        }
+
+        .status.success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .status.error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 30px 20px;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔐 Encryption/Decryption Tool</h1>
+        <p>Secure your data with Fernet encryption</p>
+    </div>
+
+    <div class="main-content">
+        <div class="section encrypt-section">
+            <h2>🔒 Encrypt</h2>
+            <div class="form-group">
+                <label for="plaintext">Plain Text:</label>
+                <textarea id="plaintext" placeholder="Enter text to encrypt..."></textarea>
+            </div>
+            <button class="btn" onclick="encryptText()">Encrypt Text</button>
+            <div class="result-area" id="encryptResult">Encrypted text will appear here...</div>
+            <button class="copy-btn" onclick="copyToClipboard('encryptResult')">📋 Copy Result</button>
+            <div class="status" id="encryptStatus"></div>
+        </div>
+
+        <div class="section decrypt-section">
+            <h2>🔓 Decrypt</h2>
+            <div class="form-group">
+                <label for="encryptedtext">Encrypted Text:</label>
+                <textarea id="encryptedtext" placeholder="Paste encrypted text here (with or without ENC[...] wrapper)..."></textarea>
+            </div>
+            <button class="btn" onclick="decryptText()">Decrypt Text</button>
+            <div class="result-area" id="decryptResult">Decrypted text will appear here...</div>
+            <button class="copy-btn" onclick="copyToClipboard('decryptResult')">📋 Copy Result</button>
+            <div class="status" id="decryptStatus"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simulated Fernet encryption/decryption
+    // In a real implementation, this would call your Spring Boot backend
+
+    const FERNET_KEY = "CjSUtCy9pw5wX6gbb9cdY1Cz_4iNe1tQ7VV43ImMYu4=";
+
+    async function encryptText() {
+        const plaintext = document.getElementById('plaintext').value.trim();
+        const btn = event.target;
+        const resultDiv = document.getElementById('encryptResult');
+        const statusDiv = document.getElementById('encryptStatus');
+
+        if (!plaintext) {
+            showStatus('encryptStatus', 'Please enter text to encrypt', 'error');
+            return;
+        }
+
+        try {
+            btn.innerHTML = '<span class="loading"></span>Encrypting...';
+            btn.disabled = true;
+
+            // Simulate API call to your Spring Boot backend
+            const response = await fetch('/api/encrypt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: plaintext })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                resultDiv.textContent = `ENC[${result.encrypted}]`;
+                showStatus('encryptStatus', 'Text encrypted successfully!', 'success');
+            } else {
+                throw new Error('Encryption failed');
+            }
+        } catch (error) {
+            // Fallback to simulated encryption for demo purposes
+            const simulatedEncrypted = btoa(plaintext + "_encrypted_" + Date.now());
+            resultDiv.textContent = `ENC[${simulatedEncrypted}]`;
+            showStatus('encryptStatus', 'Demo encryption completed (connect to backend for real encryption)', 'success');
+        } finally {
+            btn.innerHTML = 'Encrypt Text';
+            btn.disabled = false;
+        }
+    }
+
+    async function decryptText() {
+        const encryptedText = document.getElementById('encryptedtext').value.trim();
+        const btn = event.target;
+        const resultDiv = document.getElementById('decryptResult');
+        const statusDiv = document.getElementById('decryptStatus');
+
+        if (!encryptedText) {
+            showStatus('decryptStatus', 'Please enter encrypted text', 'error');
+            return;
+        }
+
+        try {
+            btn.innerHTML = '<span class="loading"></span>Decrypting...';
+            btn.disabled = true;
+
+            // Extract the encrypted token from ENC[...] format if present
+            let tokenString = encryptedText;
+            if (encryptedText.includes('ENC[')) {
+                const start = encryptedText.indexOf('ENC[') + 'ENC['.length;
+                const end = encryptedText.indexOf(']', start);
+                tokenString = encryptedText.substring(start, end);
+            }
+
+            // Simulate API call to your Spring Boot backend
+            const response = await fetch('/api/decrypt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ encryptedText: `ENC[${tokenString}]` })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                resultDiv.textContent = result.decrypted;
+                showStatus('decryptStatus', 'Text decrypted successfully!', 'success');
+            } else {
+                throw new Error('Decryption failed');
+            }
+        } catch (error) {
+            // Fallback to simulated decryption for demo purposes
+            try {
+                let tokenString = encryptedText;
+                if (encryptedText.includes('ENC[')) {
+                    const start = encryptedText.indexOf('ENC[') + 'ENC['.length;
+                    const end = encryptedText.indexOf(']', start);
+                    tokenString = encryptedText.substring(start, end);
+                }
+
+                const decoded = atob(tokenString);
+                if (decoded.includes('_encrypted_')) {
+                    const originalText = decoded.split('_encrypted_')[0];
+                    resultDiv.textContent = originalText;
+                    showStatus('decryptStatus', 'Demo decryption completed (connect to backend for real decryption)', 'success');
+                } else {
+                    throw new Error('Invalid format');
+                }
+            } catch (decodeError) {
+                resultDiv.textContent = 'Unable to decrypt. Please check the format and try again.';
+                showStatus('decryptStatus', 'Decryption failed - invalid format or corrupted data', 'error');
+            }
+        } finally {
+            btn.innerHTML = 'Decrypt Text';
+            btn.disabled = false;
+        }
+    }
+
+    function copyToClipboard(elementId) {
+        const text = document.getElementById(elementId).textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Copied!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        });
+    }
+
+    function showStatus(statusId, message, type) {
+        const statusDiv = document.getElementById(statusId);
+        statusDiv.textContent = message;
+        statusDiv.className = `status ${type} show`;
+        setTimeout(() => {
+            statusDiv.classList.remove('show');
+        }, 4000);
+    }
+
+    // Demo functionality - populate with sample data
+    document.addEventListener('DOMContentLoaded', () => {
+        // Add sample encrypted text for testing
+        document.getElementById('encryptedtext').placeholder += '\n\nExample: ENC[gAAAAABl3iV1HkOQc4Vm3zXGQTMiwT6SO0BS0aQbZRQdgMV4g75uryJ5P50t2UX3ztSqGBqqO9oA6VkTw5PiR12OHkzHK4ZNDFLNrcCutttzzeuT07kdOgUL-fy48lCPUM5YywXxvNz3HRogLg3WEneZP6J3tk_y2XE4NtqAuSD1HnqivOZ59bc=]';
+    });
+</script>
+</body>
+</html>
